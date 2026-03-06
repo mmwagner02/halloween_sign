@@ -35,9 +35,37 @@ void snakeClockwise(CRGB* wire, int step, int size) {
   wire[step] = ORANGE;
 }
 
+void fillCounterClockwise(CRGB* wire, int step, int size) {
+  if (step > size) return;
+  wire[size - 1 - step] = ORANGE;
+}
+
+void fillRandom(CRGB* wire, int step, int size) {
+  if (step >= size) return;
+
+  // How many LEDs are still off?
+  int remaining = size - step;
+
+  // Pick a random number from 0 to remaining-1
+  // This represents which unlit LED to turn on (e.g., pick=3 means the 4th unlit LED)
+  int pick = random(remaining);
+
+  // Walk the wire and count unlit LEDs until we find the one we picked
+  int seen = 0;
+  for (int i = 0; i < size; i++) {
+    if (wire[i] == OFF) {
+      if (seen == pick) {
+        wire[i] = ORANGE;
+        return;
+      }
+      seen++;
+    }
+  }
+}
+
 typedef void(*fillerFunc)(CRGB*, int, int);
-fillerFunc fillers[] = {&fillFromTop, &fillClockwise, &snakeClockwise};
-const int numFillers = 3;
+fillerFunc fillers[] = {&fillFromTop, &fillClockwise, &snakeClockwise, &fillCounterClockwise, &fillRandom};
+const int numFillers = 5;
 
 // There are 240 total LEDs in the string.
 CRGB ALL_LEDS[240];
